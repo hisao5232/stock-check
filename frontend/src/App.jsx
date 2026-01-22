@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // マシン情報の判定ロジック
 const getMachineSpec = (no) => {
@@ -13,17 +13,36 @@ const statuses = ["点検済み", "未点検", "故障中"];
 
 function App() {
   const [sheetData, setSheetData] = useState({});
-  const [isSaving, setIsSaving] = useState(false); // 保存中の状態管理
+  const [isSaving, setIsSaving] = useState(false);
 
-  // 入力が変更された時にデータを更新する関数
+  // 【修正ポイント】入力変更を確実に反映させる関数
   const handleChange = (no, field, value) => {
     setSheetData(prev => ({
       ...prev,
-      [no]: { ...prev[no], [field]: value }
+      [no]: {
+        ...prev[no], // 既存の機番データ（あれば）をコピー
+        [field]: value // 変更した項目だけ上書き
+      }
     }));
   };
 
-  // FastAPIへデータを送信する関数
+  // ページ読み込み時にデータを取得
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://stock-check.go-pro-world.net/api/load');
+        if (response.ok) {
+          const data = await response.json();
+          setSheetData(data);
+        }
+      } catch (error) {
+        console.error("データ読み込み失敗:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // FastAPIへデータを送信
   const handleSave = async () => {
     if (Object.keys(sheetData).length === 0) {
       alert("入力データがありません。");
@@ -34,9 +53,7 @@ function App() {
     try {
       const response = await fetch('https://stock-check.go-pro-world.net/api/save', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData),
       });
 
@@ -48,7 +65,7 @@ function App() {
       }
     } catch (error) {
       console.error("通信エラー:", error);
-      alert('保存に失敗しました。サーバーに接続できません。');
+      alert('保存に失敗しました。');
     } finally {
       setIsSaving(false);
     }

@@ -19,6 +19,8 @@ services:
       - "traefik.docker.network=traefik-public"
       # 【追加】API側の優先度を高くする
       - "traefik.http.routers.stock-api.priority=100"
+    environment:
+      - TZ=Asia/Tokyo
 
   frontend:
     build: ./frontend
@@ -40,6 +42,8 @@ services:
       - "traefik.docker.network=traefik-public"
       # 【追加】フロント側の優先度を少し下げる
       - "traefik.http.routers.stock-frontend.priority=1"
+    environment:
+      - TZ=Asia/Tokyo
 
 networks:
   internal:

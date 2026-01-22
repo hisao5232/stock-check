@@ -1,0 +1,52 @@
+services:
+  backend:
+    build: ./backend
+    container_name: stock-api
+    restart: always
+    volumes:
+      - ./backend:/app
+      - stock_db_data:/app/data
+    networks:
+      - traefik-public
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stock-api.rule=Host(`stock-check.go-pro-world.net`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.stock-api.entrypoints=websecure"
+      - "traefik.http.routers.stock-api.tls=true"
+      - "traefik.http.routers.stock-api.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.stock-api.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik-public"
+      # 【追加】API側の優先度を高くする
+      - "traefik.http.routers.stock-api.priority=100"
+
+  frontend:
+    build: ./frontend
+    container_name: stock-frontend
+    restart: always # 追加しておくと安心
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - traefik-public
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stock-frontend.rule=Host(`stock-check.go-pro-world.net`)"
+      - "traefik.http.routers.stock-frontend.entrypoints=websecure"
+      - "traefik.http.routers.stock-frontend.tls=true"
+      - "traefik.http.routers.stock-frontend.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.stock-frontend.loadbalancer.server.port=5173"
+      - "traefik.docker.network=traefik-public"
+      # 【追加】フロント側の優先度を少し下げる
+      - "traefik.http.routers.stock-frontend.priority=1"
+
+networks:
+  internal:
+    driver: bridge
+  traefik-public:
+    external: true
+
+volumes:
+  stock_db_data:
+  

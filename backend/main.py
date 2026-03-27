@@ -9,12 +9,16 @@ from datetime import datetime, timedelta, timezone
 # 日本時間のタイムゾーン定義
 JST = timezone(timedelta(hours=+9), 'JST')
 
-app = FastAPI(root_path="/api")
+app = FastAPI()
 
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://stock-check.go-pro-world.net", # Pagesのドメイン
+        "https://*.pages.dev",             # 【追加】Cloudflareのプレビュー用URLを許可
+        "http://localhost:5173"               # ローカル開発用
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -15,6 +15,9 @@ function App() {
   const [sheetData, setSheetData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
+  // 通信先のベースURLを定義しておくと管理が楽です
+  const API_BASE_URL = 'https://api-stock-check.go-pro-world.net';
+
   // 【修正ポイント】入力変更を確実に反映させる関数
   const handleChange = (no, field, value) => {
     setSheetData(prev => ({
@@ -30,7 +33,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://stock-check.go-pro-world.net/api/load');
+        const response = await fetch(`${API_BASE_URL}/load`);
         if (response.ok) {
           const data = await response.json();
           setSheetData(data);
@@ -51,7 +54,7 @@ function App() {
 
     setIsSaving(true);
     try {
-      const response = await fetch('https://stock-check.go-pro-world.net/api/save', {
+      const response = await fetch(`${API_BASE_URL}/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData),

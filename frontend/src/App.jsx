@@ -15,8 +15,8 @@ function App() {
   const [sheetData, setSheetData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // 通信先のベースURLを定義しておくと管理が楽です
-  const API_BASE_URL = 'https://api-stock-check.go-pro-world.net';
+  // 【修正】環境変数から読み込む。設定がない場合のフォールバック（バックアップ）も記述
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-stock-check.go-pro-world.net';
 
   // 【修正ポイント】入力変更を確実に反映させる関数
   const handleChange = (no, field, value) => {
@@ -43,7 +43,7 @@ function App() {
       }
     };
     fetchData();
-  }, []);
+  }, [API_BASE_URL]);
 
   // FastAPIへデータを送信
   const handleSave = async () => {

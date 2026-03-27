@@ -19,6 +19,7 @@ app.add_middleware(
         "https://*.pages.dev",             # 【追加】Cloudflareのプレビュー用URLを許可
         "http://localhost:5173"               # ローカル開発用
     ],
+    allow_origin_regex="https://.*\.pages\.dev", # CloudflareのプレビューURLをすべて許可
     allow_methods=["*"],
     allow_headers=["*"],
 )
